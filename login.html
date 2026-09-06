@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Login</title>
     <style>
-        /* Seu CSS aqui */
         * {
             margin: 0;
             padding: 0;
@@ -327,28 +326,27 @@
 <body>
     <div class="login-container">
         <div class="login-header">
-            <h1>🔐 Login <span class="security-badge">SHA-256</span></h1>
+            <h1>Login <span class="security-badge">SHA-256</span></h1>
             <p id="ambienteLabel">Carregando...</p>
         </div>
 
         <div id="mensagemSucesso" class="success-message">
-            ✅ Login realizado com sucesso!
+            Login realizado com sucesso!
         </div>
 
-        <!-- Abas -->
         <div class="abas">
-            <button class="aba ativa" onclick="mostrarAba('cadastro')">📝 Cadastro</button>
-            <button class="aba" onclick="mostrarAba('login')">🔑 Login</button>
-            <button class="aba" onclick="mostrarAba('perfil')">👤 Perfil</button>
+            <button class="aba ativa" onclick="mostrarAba('cadastro')">Cadastro</button>
+            <button class="aba" onclick="mostrarAba('login')">Login</button>
+            <button class="aba" onclick="mostrarAba('perfil')">Perfil</button>
         </div>
 
         <!-- ABA CADASTRO -->
         <div id="aba-cadastro" class="aba-conteudo ativa">
             <div class="card">
-                <h3>📝 Cadastrar Usuário</h3>
+                <h3>Cadastrar Usuario</h3>
                 <form id="formCadastro">
                     <div class="form-group">
-                        <label>Nome de Usuário</label>
+                        <label>Nome de Usuario</label>
                         <input type="text" id="cadastroNome" placeholder="Digite seu nome" required>
                     </div>
                     <div class="form-group">
@@ -356,10 +354,10 @@
                         <input type="email" id="cadastroEmail" placeholder="seu@email.com" required>
                     </div>
                     <div class="form-group">
-                        <label>Senha (mínimo 6 caracteres)</label>
+                        <label>Senha (minimo 6 caracteres)</label>
                         <input type="password" id="cadastroSenha" placeholder="••••••••" required minlength="6">
                     </div>
-                    <button type="submit" class="login-btn">📝 Cadastrar</button>
+                    <button type="submit" class="login-btn">Cadastrar</button>
                 </form>
                 <div id="resultadoCadastro" class="resultado"></div>
             </div>
@@ -368,7 +366,7 @@
         <!-- ABA LOGIN -->
         <div id="aba-login" class="aba-conteudo">
             <div class="card">
-                <h3>🔑 Login</h3>
+                <h3>Login</h3>
                 <form id="formLogin">
                     <div class="form-group">
                         <label>Email</label>
@@ -381,7 +379,7 @@
                             <button type="button" class="toggle-password" id="togglePassword">👁️</button>
                         </div>
                     </div>
-                    <button type="submit" class="login-btn">🔑 Entrar</button>
+                    <button type="submit" class="login-btn">Entrar</button>
                 </form>
                 <div id="resultadoLogin" class="resultado"></div>
             </div>
@@ -390,56 +388,53 @@
         <!-- ABA PERFIL -->
         <div id="aba-perfil" class="aba-conteudo">
             <div class="card">
-                <h3>👤 Meu Perfil</h3>
+                <h3>Meu Perfil</h3>
                 <div id="perfilInfo">
                     <p style="color: #666;">Faça login para ver seus dados</p>
                 </div>
-                <button class="logout-btn" onclick="fazerLogout()">🚪 Sair</button>
+                <button class="logout-btn" onclick="fazerLogout()">Sair</button>
                 <div id="resultadoLogout" class="resultado"></div>
             </div>
         </div>
 
         <div class="api-info" id="apiInfo">
-            🔌 Conectando...
+            Conectando...
         </div>
     </div>
 
     <script>
         // ============================================
-        // CONFIGURAÇÃO AUTOMÁTICA DE AMBIENTE
+        // CONFIGURACAO AUTOMATICA DE AMBIENTE
         // ============================================
         const isLocalhost = window.location.hostname === '127.0.0.1' || 
                             window.location.hostname === 'localhost' ||
                             window.location.hostname === '0.0.0.0';
 
-        // URLS
         const PRODUCTION_URL = 'https://back-end-stream.vercel.app';
         const LOCAL_URL = 'http://localhost:3000';
 
         const API_URL = isLocalhost ? LOCAL_URL : PRODUCTION_URL;
-        const AMBIENTE = isLocalhost ? '🏠 DESENVOLVIMENTO' : '🚀 PRODUÇÃO';
+        const AMBIENTE = isLocalhost ? 'DESENVOLVIMENTO' : 'PRODUCAO';
 
-        // Mostrar ambiente na tela
         document.getElementById('ambienteLabel').innerHTML = `
             Ambiente: <span class="env-badge ${isLocalhost ? 'env-dev' : 'env-prod'}">${AMBIENTE}</span>
             <br><small style="color: #888; font-size: 12px;">API: ${API_URL}</small>
         `;
 
         document.getElementById('apiInfo').innerHTML = `
-            🔌 API: <code>${API_URL}</code> - ${AMBIENTE}
+            API: <code>${API_URL}</code> - ${AMBIENTE}
         `;
 
-        console.log(`🌐 ${AMBIENTE}`);
-        console.log(`📡 API: ${API_URL}`);
-        console.log(`📄 Página: ${window.location.href}`);
+        console.log(`Ambiente: ${AMBIENTE}`);
+        console.log(`API: ${API_URL}`);
 
         // ============================================
-        // VARIÁVEIS GLOBAIS
+        // VARIAVEIS GLOBAIS
         // ============================================
         let tokenAtual = localStorage.getItem('token') || null;
 
         // ============================================
-        // FUNÇÃO PARA REQUISIÇÕES
+        // FUNCAO PARA REQUISICOES
         // ============================================
         async function apiRequest(endpoint, method, data) {
             const headers = {
@@ -450,8 +445,12 @@
                 headers['Authorization'] = `Bearer ${tokenAtual}`;
             }
 
-            // Limpar URL (evitar barras duplicadas)
             const url = `${API_URL}${endpoint}`.replace(/([^:]\/)\/+/g, "$1");
+
+            console.log(`📤 ${method} ${url}`);
+            if (data) {
+                console.log('📦 Dados:', data);
+            }
 
             try {
                 const response = await fetch(url, {
@@ -460,24 +459,17 @@
                     body: data ? JSON.stringify(data) : undefined,
                 });
 
-                let result;
-                const text = await response.text();
-                
-                try {
-                    result = JSON.parse(text);
-                } catch {
-                    result = { message: text || 'Resposta vazia' };
-                }
-
+                const result = await response.json();
+                console.log(`📥 Status: ${response.status}`, result);
                 return { response, result };
             } catch (error) {
-                console.error('❌ Erro na requisição:', error);
+                console.error('Erro na requisicao:', error);
                 throw error;
             }
         }
 
         // ============================================
-        // FUNÇÕES DE INTERFACE
+        // FUNCOES DE INTERFACE
         // ============================================
         function mostrarAba(aba) {
             document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.remove('ativa'));
@@ -511,6 +503,10 @@
             const email = document.getElementById('cadastroEmail').value;
             const senha = document.getElementById('cadastroSenha').value;
 
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.classList.add('loading');
+
             try {
                 const { response, result } = await apiRequest('/cadastrar', 'POST', {
                     nome_usuario,
@@ -531,6 +527,9 @@
                 }
             } catch (error) {
                 mostrarResultado('resultadoCadastro', false, `Erro: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
             }
         });
 
@@ -542,7 +541,14 @@
 
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.classList.add('loading');
+
             try {
+                console.log('📤 Enviando login:', { email, senha: '***' });
+
                 const { response, result } = await apiRequest('/login', 'POST', {
                     email,
                     senha
@@ -568,6 +574,9 @@
                 }
             } catch (error) {
                 mostrarResultado('resultadoLogin', false, `Erro: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('loading');
             }
         });
 
@@ -605,18 +614,18 @@
                             <strong>Perfil:</strong> ${dados.usuario.perfil}<br>
                             <strong>Token expira em:</strong> ${new Date(dados.expira_em).toLocaleString()}
                         </div>
-                        <div style="color: #28a745; font-weight: bold;">✅ Usuário autenticado</div>
+                        <div style="color: #28a745; font-weight: bold;">✅ Usuario autenticado</div>
                     `;
                 } else {
                     localStorage.removeItem('token');
                     tokenAtual = null;
                     document.getElementById('perfilInfo').innerHTML = `
-                        <p style="color: #dc3545;">❌ Sessão expirada. Faça login novamente.</p>
+                        <p style="color: #dc3545;">Sessao expirada. Faça login novamente.</p>
                     `;
                 }
             } catch (error) {
                 document.getElementById('perfilInfo').innerHTML = `
-                    <p style="color: #dc3545;">❌ Erro ao carregar perfil: ${error.message}</p>
+                    <p style="color: #dc3545;">Erro ao carregar perfil: ${error.message}</p>
                 `;
             }
         }
@@ -626,9 +635,12 @@
         // ============================================
         async function fazerLogout() {
             if (!tokenAtual) {
-                alert('Você já está deslogado!');
+                alert('Voce ja esta deslogado!');
                 return;
             }
+
+            const btn = document.querySelector('.logout-btn');
+            btn.disabled = true;
 
             try {
                 const { response, result } = await apiRequest('/logout', 'POST');
@@ -651,6 +663,8 @@
                 }
             } catch (error) {
                 mostrarResultado('resultadoLogout', false, `Erro: ${error.message}`);
+            } finally {
+                btn.disabled = false;
             }
         }
 
@@ -661,9 +675,9 @@
             carregarPerfil();
         }
 
-        console.log('🚀 Sistema de Login pronto!');
-        console.log(`📡 API: ${API_URL}`);
-        console.log(`🌐 Ambiente: ${AMBIENTE}`);
+        console.log('Sistema de Login pronto!');
+        console.log(`API: ${API_URL}`);
+        console.log(`Ambiente: ${AMBIENTE}`);
     </script>
 </body>
 </html>
