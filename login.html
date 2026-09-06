@@ -503,6 +503,8 @@
             const email = document.getElementById('cadastroEmail').value;
             const senha = document.getElementById('cadastroSenha').value;
 
+            senha = senha.trim()
+            
             const btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.classList.add('loading');
