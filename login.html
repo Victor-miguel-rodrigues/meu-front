@@ -542,11 +542,11 @@
 
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
-
+            const senha_hash = senha;
             try {
                 const { response, result } = await apiRequest('/login', 'POST', {
                     email,
-                    senha
+                    senha_hash
                 });
 
                 if (response.ok) {
