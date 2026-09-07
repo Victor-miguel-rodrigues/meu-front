@@ -3,19 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Acesso Restrito</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-</head>
-<body class="auth-page">
+    <style>
+        /* ============================================
+           PÁGINA DE BLOQUEIO
+           ============================================ */
+        .block-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0f;
+            padding: 20px;
+            font-family: 'Inter', sans-serif;
+        }
 
-    <div class="auth-container">
-        <div class="auth-card">
-            <h2>Criar conta para usuário</h2>
-            <p style="color: #888; font-size: 14px; text-align: center; margin-bottom: 24px;">
-                Painel administrativo - criação de contas
+        .block-card {
+            background: #1a1a2e;
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 520px;
+            width: 100%;
+            border: 1px solid #2a2a4a;
+            text-align: center;
+        }
+
+        .block-card .block-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .block-card h1 {
+            color: #f87171;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .block-card p {
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .block-card .block-detalhes {
+            background: #0a0a0f;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: left;
+            font-size: 13px;
+            color: #94a3b8;
+            font-family: monospace;
+        }
+
+        .block-card .block-detalhes span {
+            color: #e2e8f0;
+        }
+
+        .block-card .block-detalhes .destaque {
+            color: #f87171;
+            font-weight: 600;
+        }
+
+        .block-card .block-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .block-card .block-btn:hover {
+            background: #c82333;
+        }
+
+        .block-card .block-footer {
+            margin-top: 16px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .block-card .block-footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .block-card .block-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Badge de segurança */
+        .security-badge-block {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        /* ============================================
+           FORMULÁRIO ADMIN (oculto por padrão)
+           ============================================ */
+        .admin-form-container {
+            display: none;
+        }
+
+        .admin-form-container.ativo {
+            display: block;
+        }
+
+        .admin-form-container .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+            max-width: 420px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .admin-form-container .auth-logo {
+            display: block;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 24px;
+        }
+
+        .admin-form-container h2 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .admin-form-container .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+    PÁGINA DE BLOQUEIO (MOSTRA PARA INVASORES)
+    ============================================ -->
+    <div id="blockPage" class="block-page">
+        <div class="block-card">
+            <div class="block-icon">🛡️</div>
+            <span class="security-badge-block">🔒 ACESSO BLOQUEADO</span>
+            <h1>Acesso não autorizado</h1>
+            <p>Esta área é restrita a administradores autorizados.</p>
+            <p style="font-size: 13px; color: #64748b;">
+                Seu acesso foi registrado para fins de segurança.
             </p>
+
+            <!-- DETALHES DO ACESSO -->
+            <div class="block-detalhes">
+                <div>🌐 IP Detectado: <span id="detectIp">Carregando...</span></div>
+                <div>📍 Localização: <span id="detectLocalizacao">Carregando...</span></div>
+                <div>🔌 Conexão: <span id="detectConexao">Carregando...</span></div>
+                <div>🖥️ User-Agent: <span id="detectUserAgent">Carregando...</span></div>
+                <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #2a2a4a;">
+                    🚨 <span class="destaque">Tentativa de acesso não autorizado</span>
+                </div>
+                <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                    ⏱️ Data: <span id="detectData"></span>
+                </div>
+            </div>
+
+            <button class="block-btn" onclick="window.location.href='login.html'">
+                🔒 Voltar para o login
+            </button>
+
+            <div class="block-footer">
+                <p>Se você é administrador, <a href="#" onclick="verificarAdmin()">clique aqui</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+    FORMULÁRIO ADMIN (SÓ APARECE PARA ADMIN)
+    ============================================ -->
+    <div id="adminForm" class="admin-form-container">
+        <div class="auth-card">
+            <a href="#" class="auth-logo">MeuApp</a>
+            <h2>Criar conta para usuário</h2>
+            <p class="subtitle">Painel administrativo - criação de contas</p>
 
             <form id="formCadastro" class="auth-form">
                 <div class="form-group">
@@ -33,18 +222,16 @@
                     <input type="password" id="cadastroSenha" placeholder="Mínimo 6 caracteres" required minlength="6">
                 </div>
 
-                <!-- PLANO -->
                 <div class="form-group">
                     <label>Plano</label>
                     <div class="plano-opcoes">
                         <label class="plano-option">
                             <input type="radio" name="plano" value="Premium" checked>
-                            <span class="plano-label"> Premium</span>
+                            <span class="plano-label">⭐ Premium</span>
                         </label>
                     </div>
                 </div>
 
-                <!-- ✅ CAIXINHA PAGO / NÃO PAGO -->
                 <div class="form-group">
                     <label>Status do pagamento</label>
                     <div class="plano-opcoes">
@@ -54,7 +241,7 @@
                         </label>
                         <label class="plano-option">
                             <input type="radio" name="pago" value="false">
-                            <span class="plano-label" style="color: #dc3545;"> Não pago</span>
+                            <span class="plano-label" style="color: #dc3545;">❌ Não pago</span>
                         </label>
                     </div>
                     <small style="color: #888; font-size: 12px; display: block; margin-top: 4px;">
@@ -67,38 +254,193 @@
 
             <div id="resultadoCadastro" class="resultado"></div>
 
-            <!-- ❌ REMOVIDO - Link de login -->
-            <!-- <p class="auth-link">Já tem conta? <a href="login.html">Faça login</a></p> -->
-
+            <p style="text-align: center; margin-top: 16px; font-size: 13px; color: #888;">
+                <a href="#" onclick="sairAdmin()" style="color: #dc3545;">🔒 Sair do painel</a>
+            </p>
         </div>
     </div>
 
+    <script>
+        // ============================================
+        // DETECTAR IP, LOCALIZAÇÃO E VPN
+        // ============================================
+        async function detectarAcesso() {
+            try {
+                // 1. Detectar IP via API externa
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                const ip = ipData.ip || 'Não detectado';
 
-        <script>
+                // 2. Detectar localização e VPN
+                const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
+                const geoData = await geoRes.json();
+
+                const localizacao = geoData.city && geoData.country_name 
+                    ? `${geoData.city}, ${geoData.country_name}` 
+                    : 'Não detectado';
+
+                // 3. Detectar se é VPN/Proxy
+                const isVPN = geoData.proxy || geoData.vpn || false;
+                const isHosting = geoData.hosting || false;
+                const conexao = isVPN || isHosting ? '⚠️ VPN/Proxy detectado' : '✅ Conexão direta';
+
+                // 4. User-Agent
+                const userAgent = navigator.userAgent || 'Não detectado';
+
+                // 5. Data
+                const data = new Date().toLocaleString('pt-BR');
+
+                // Atualizar elementos
+                document.getElementById('detectIp').textContent = ip;
+                document.getElementById('detectLocalizacao').textContent = localizacao;
+                document.getElementById('detectConexao').textContent = conexao;
+                document.getElementById('detectUserAgent').textContent = userAgent.substring(0, 80) + '...';
+                document.getElementById('detectData').textContent = data;
+
+                // Salvar no localStorage para verificação
+                localStorage.setItem('last_ip', ip);
+                localStorage.setItem('last_location', localizacao);
+                localStorage.setItem('is_vpn', isVPN ? 'true' : 'false');
+
+                // Verificar se é admin
+                verificarAdmin();
+
+            } catch (error) {
+                console.error('Erro ao detectar acesso:', error);
+                document.getElementById('detectIp').textContent = 'Erro ao detectar';
+                document.getElementById('detectLocalizacao').textContent = 'Erro ao detectar';
+                document.getElementById('detectConexao').textContent = 'Erro ao detectar';
+                document.getElementById('detectUserAgent').textContent = 'Erro ao detectar';
+            }
+        }
+
         // ============================================
-        // 🔒 BLOQUEAR ACESSO DIRETO
+        // VERIFICAR SE É ADMIN
         // ============================================
-        (function() {
-            // Verifica se o usuário é admin (via localStorage)
+        function verificarAdmin() {
             const isAdmin = localStorage.getItem('admin_access') === 'true';
-            
-            // Verifica se veio do painel admin (via URL param)
             const urlParams = new URLSearchParams(window.location.search);
             const fromAdmin = urlParams.get('admin') === 'true';
 
-            // Se não for admin E não veio do painel, bloqueia
-            if (!isAdmin && !fromAdmin) {
-                alert('🔒 Acesso restrito! Esta página é apenas para administradores.');
-                window.location.href = 'login.html';
+            // Se for admin, mostra o formulário
+            if (isAdmin || fromAdmin) {
+                document.getElementById('blockPage').style.display = 'none';
+                document.getElementById('adminForm').classList.add('ativo');
+                
+                if (fromAdmin) {
+                    localStorage.setItem('admin_access', 'true');
+                }
+                return true;
             }
 
-            // Se veio do painel, garante que o admin_access fique ativo
-            if (fromAdmin) {
+            return false;
+        }
+
+        // ============================================
+        // SAIR DO PAINEL ADMIN
+        // ============================================
+        function sairAdmin() {
+            localStorage.removeItem('admin_access');
+            window.location.href = 'login.html';
+        }
+
+        // ============================================
+        // TENTAR ACESSAR COMO ADMIN (BOTÃO)
+        // ============================================
+        function tentarAcessoAdmin() {
+            const senha = prompt('🔑 Digite a senha de administrador:');
+            if (senha === 'admin123') { // 🔴 ALTERE A SENHA AQUI
                 localStorage.setItem('admin_access', 'true');
+                window.location.reload();
+            } else {
+                alert('❌ Senha incorreta! Acesso negado.');
+                // Registrar tentativa
+                console.log('🔴 Tentativa de acesso admin com senha incorreta');
             }
-        })();
+        }
+
+        // ============================================
+        // INICIAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Detectar IP e informações
+            detectarAcesso();
+
+            // Se for admin, mostrar formulário
+            if (verificarAdmin()) {
+                // Já está mostrando o formulário
+            }
+
+            // Botão "clique aqui" para admin
+            const linkAdmin = document.querySelector('.block-footer a');
+            if (linkAdmin) {
+                linkAdmin.onclick = function(e) {
+                    e.preventDefault();
+                    tentarAcessoAdmin();
+                };
+            }
+        });
+
+        // ============================================
+        // CADASTRO (ENVIO DO FORMULÁRIO)
+        // ============================================
+        const formCadastro = document.getElementById('formCadastro');
+        if (formCadastro) {
+            formCadastro.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nome_usuario = document.getElementById('cadastroNome').value;
+                const email = document.getElementById('cadastroEmail').value;
+                const senha = document.getElementById('cadastroSenha').value.trim();
+                const perfil = document.querySelector('input[name="plano"]:checked')?.value || 'Premium';
+                const pago = document.querySelector('input[name="pago"]:checked')?.value === 'true';
+
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.disabled = true;
+                btn.textContent = 'Cadastrando...';
+
+                try {
+                    const API_URL = 'https://back-end-stream.vercel.app';
+                    
+                    const response = await fetch(`${API_URL}/cadastrar`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nome_usuario,
+                            email,
+                            senha,
+                            perfil,
+                            pago
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        const el = document.getElementById('resultadoCadastro');
+                        el.className = 'resultado sucesso';
+                        el.textContent = '✅ Cadastro realizado!';
+                        el.style.display = 'block';
+                        document.getElementById('formCadastro').reset();
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        const el = document.getElementById('resultadoCadastro');
+                        el.className = 'resultado erro';
+                        el.textContent = `❌ ${result.message || 'Erro no cadastro'}`;
+                        el.style.display = 'block';
+                    }
+                } catch (error) {
+                    const el = document.getElementById('resultadoCadastro');
+                    el.className = 'resultado erro';
+                    el.textContent = '❌ Erro de conexão';
+                    el.style.display = 'block';
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = 'Criar conta';
+                }
+            });
+        }
     </script>
 
-    <script src="script.js"></script>
 </body>
 </html>
