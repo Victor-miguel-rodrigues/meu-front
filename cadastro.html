@@ -96,13 +96,13 @@
         .block-card .block-footer a {
             color: #667eea;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .block-card .block-footer a:hover {
             text-decoration: underline;
         }
 
-        /* Badge de segurança */
         .security-badge-block {
             display: inline-block;
             background: #dc3545;
@@ -115,14 +115,20 @@
         }
 
         /* ============================================
-           FORMULÁRIO ADMIN (oculto por padrão)
+           FORMULÁRIO ADMIN
            ============================================ */
         .admin-form-container {
             display: none;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f2f5;
+            padding: 20px;
         }
 
         .admin-form-container.ativo {
-            display: block;
+            display: flex;
         }
 
         .admin-form-container .auth-card {
@@ -132,7 +138,6 @@
             box-shadow: 0 4px 24px rgba(0,0,0,0.06);
             max-width: 420px;
             width: 100%;
-            margin: 0 auto;
         }
 
         .admin-form-container .auth-logo {
@@ -155,6 +160,161 @@
             color: #888;
             font-size: 14px;
             margin-bottom: 24px;
+        }
+
+        /* Badge admin */
+        .admin-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.25s ease;
+            background: #fafafa;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            background: #fff;
+        }
+
+        .plano-opcoes {
+            display: flex;
+            gap: 12px;
+        }
+
+        .plano-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .plano-option:hover {
+            border-color: #667eea;
+        }
+
+        .plano-option input[type="radio"] {
+            display: none;
+        }
+
+        .plano-option:has(input:checked) {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .plano-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .resultado {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .resultado.sucesso {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .resultado.erro {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .admin-link a {
+            color: #dc3545;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .admin-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -192,7 +352,7 @@
             </button>
 
             <div class="block-footer">
-                <p>Se você é administrador, <a href="#" onclick="verificarAdmin()">clique aqui</a></p>
+                <p>🔑 <a href="#" onclick="ativarAdmin()">Clique aqui se for administrador</a></p>
             </div>
         </div>
     </div>
@@ -202,6 +362,9 @@
     ============================================ -->
     <div id="adminForm" class="admin-form-container">
         <div class="auth-card">
+            <div style="text-align: center;">
+                <span class="admin-badge">👑 ADMIN</span>
+            </div>
             <a href="#" class="auth-logo">MeuApp</a>
             <h2>Criar conta para usuário</h2>
             <p class="subtitle">Painel administrativo - criação de contas</p>
@@ -254,9 +417,9 @@
 
             <div id="resultadoCadastro" class="resultado"></div>
 
-            <p style="text-align: center; margin-top: 16px; font-size: 13px; color: #888;">
-                <a href="#" onclick="sairAdmin()" style="color: #dc3545;">🔒 Sair do painel</a>
-            </p>
+            <div class="admin-link">
+                <a href="#" onclick="sairAdmin()">🔒 Sair do painel</a>
+            </div>
         </div>
     </div>
 
@@ -266,12 +429,10 @@
         // ============================================
         async function detectarAcesso() {
             try {
-                // 1. Detectar IP via API externa
                 const ipRes = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipRes.json();
                 const ip = ipData.ip || 'Não detectado';
 
-                // 2. Detectar localização e VPN
                 const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
                 const geoData = await geoRes.json();
 
@@ -279,30 +440,23 @@
                     ? `${geoData.city}, ${geoData.country_name}` 
                     : 'Não detectado';
 
-                // 3. Detectar se é VPN/Proxy
                 const isVPN = geoData.proxy || geoData.vpn || false;
                 const isHosting = geoData.hosting || false;
                 const conexao = isVPN || isHosting ? '⚠️ VPN/Proxy detectado' : '✅ Conexão direta';
 
-                // 4. User-Agent
                 const userAgent = navigator.userAgent || 'Não detectado';
-
-                // 5. Data
                 const data = new Date().toLocaleString('pt-BR');
 
-                // Atualizar elementos
                 document.getElementById('detectIp').textContent = ip;
                 document.getElementById('detectLocalizacao').textContent = localizacao;
                 document.getElementById('detectConexao').textContent = conexao;
                 document.getElementById('detectUserAgent').textContent = userAgent.substring(0, 80) + '...';
                 document.getElementById('detectData').textContent = data;
 
-                // Salvar no localStorage para verificação
                 localStorage.setItem('last_ip', ip);
                 localStorage.setItem('last_location', localizacao);
                 localStorage.setItem('is_vpn', isVPN ? 'true' : 'false');
 
-                // Verificar se é admin
                 verificarAdmin();
 
             } catch (error) {
@@ -315,14 +469,13 @@
         }
 
         // ============================================
-        // VERIFICAR SE É ADMIN
+        // VERIFICAR SE É ADMIN (VIA LOCALSTORAGE)
         // ============================================
         function verificarAdmin() {
             const isAdmin = localStorage.getItem('admin_access') === 'true';
             const urlParams = new URLSearchParams(window.location.search);
             const fromAdmin = urlParams.get('admin') === 'true';
 
-            // Se for admin, mostra o formulário
             if (isAdmin || fromAdmin) {
                 document.getElementById('blockPage').style.display = 'none';
                 document.getElementById('adminForm').classList.add('ativo');
@@ -337,6 +490,14 @@
         }
 
         // ============================================
+        // ATIVAR ADMIN (SÓ SETA O LOCALSTORAGE)
+        // ============================================
+        function ativarAdmin() {
+            localStorage.setItem('admin_access', 'true');
+            window.location.reload();
+        }
+
+        // ============================================
         // SAIR DO PAINEL ADMIN
         // ============================================
         function sairAdmin() {
@@ -345,44 +506,20 @@
         }
 
         // ============================================
-        // TENTAR ACESSAR COMO ADMIN (BOTÃO)
-        // ============================================
-        function tentarAcessoAdmin() {
-            const senha = prompt('🔑 Digite a senha de administrador:');
-            if (senha === 'admin123') { // 🔴 ALTERE A SENHA AQUI
-                localStorage.setItem('admin_access', 'true');
-                window.location.reload();
-            } else {
-                alert('❌ Senha incorreta! Acesso negado.');
-                // Registrar tentativa
-                console.log('🔴 Tentativa de acesso admin com senha incorreta');
-            }
-        }
-
-        // ============================================
         // INICIAR
         // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            // Detectar IP e informações
             detectarAcesso();
 
-            // Se for admin, mostrar formulário
-            if (verificarAdmin()) {
-                // Já está mostrando o formulário
-            }
-
-            // Botão "clique aqui" para admin
-            const linkAdmin = document.querySelector('.block-footer a');
-            if (linkAdmin) {
-                linkAdmin.onclick = function(e) {
-                    e.preventDefault();
-                    tentarAcessoAdmin();
-                };
+            // Se não for admin, mostra a página de bloqueio
+            if (!verificarAdmin()) {
+                document.getElementById('blockPage').style.display = 'flex';
+                document.getElementById('adminForm').classList.remove('ativo');
             }
         });
 
         // ============================================
-        // CADASTRO (ENVIO DO FORMULÁRIO)
+        // CADASTRO
         // ============================================
         const formCadastro = document.getElementById('formCadastro');
         if (formCadastro) {
