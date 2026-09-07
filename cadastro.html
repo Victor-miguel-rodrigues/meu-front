@@ -73,6 +73,32 @@
         </div>
     </div>
 
+
+        <script>
+        // ============================================
+        // 🔒 BLOQUEAR ACESSO DIRETO
+        // ============================================
+        (function() {
+            // Verifica se o usuário é admin (via localStorage)
+            const isAdmin = localStorage.getItem('admin_access') === 'true';
+            
+            // Verifica se veio do painel admin (via URL param)
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromAdmin = urlParams.get('admin') === 'true';
+
+            // Se não for admin E não veio do painel, bloqueia
+            if (!isAdmin && !fromAdmin) {
+                alert('🔒 Acesso restrito! Esta página é apenas para administradores.');
+                window.location.href = 'login.html';
+            }
+
+            // Se veio do painel, garante que o admin_access fique ativo
+            if (fromAdmin) {
+                localStorage.setItem('admin_access', 'true');
+            }
+        })();
+    </script>
+
     <script src="script.js"></script>
 </body>
 </html>
