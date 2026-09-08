@@ -12,7 +12,7 @@ const AMBIENTE = isLocalhost ? 'DESENVOLVIMENTO' : 'PRODUCAO';
 // ============================================
 // 🔴 AS CHAVES SERÃO INJETADAS PELO AMBIENTE DA VERCEL
 // Em desenvolvimento local, use variáveis de ambiente
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 // ⚠️ Verificar se a chave foi configurada
