@@ -1,5 +1,5 @@
 // ============================================
-// CONFIGURACAO DE AMBIENTE
+// CONFIGURAÇÃO
 // ============================================
 const isLocalhost = window.location.hostname === '127.0.0.1' || 
                     window.location.hostname === 'localhost';
@@ -8,31 +8,11 @@ const API_URL = 'https://back-end-stream.vercel.app';
 const AMBIENTE = isLocalhost ? 'DESENVOLVIMENTO' : 'PRODUCAO';
 
 // ============================================
-// CONFIGURAR SUPABASE REALTIME (VIA AMBIENTE)
-// ============================================
-// 🔴 AS CHAVES SERÃO INJETADAS PELO AMBIENTE DA VERCEL
-// Em desenvolvimento local, use variáveis de ambiente
-const SUPABASE_URL = process.env.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
-
-// ⚠️ Verificar se a chave foi configurada
-if (!SUPABASE_ANON_KEY && !isLocalhost) {
-    console.warn('⚠️ SUPABASE_ANON_KEY não configurada! Verifique as variáveis de ambiente.');
-}
-
-let supabaseClient = null;
-try {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (error) {
-    console.warn('⚠️ Supabase não inicializado:', error.message);
-}
-
-// ============================================
 // VARIAVEIS GLOBAIS
 // ============================================
 let tokenAtual = localStorage.getItem('token') || null;
 const PRECO_POR_CONTA = 20.00;
-let supabaseSubscription = null;
+let intervalCheck = null;
 let usuarioLiberado = false;
 
 // ============================================
@@ -76,76 +56,81 @@ function mostrarResultado(id, sucesso, mensagem, dados = null) {
 }
 
 // ============================================
-// ESCUTAR MUDANÇAS DE PAGAMENTO (REALTIME)
+// ✅ VERIFICAR PAGAMENTO (USANDO A ROTA DO BACKEND)
 // ============================================
-function escutarPagamento(email) {
-    if (!supabaseClient) {
-        console.warn('⚠️ Supabase não disponível');
-        return;
-    }
-
-    if (supabaseSubscription) {
-        supabaseSubscription.unsubscribe();
-    }
-
-    console.log('🔄 Escutando mudanças para:', email);
-
+async function verificarPagamento(email) {
     try {
-        supabaseSubscription = supabaseClient
-            .channel('usuarios_changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'usuarios',
-                    filter: `email=eq.${email}`
-                },
-                (payload) => {
-                    console.log('📨 Evento Realtime recebido:', payload);
-                    
-                    if (payload.new && payload.new.pago === true) {
-                        console.log('✅ USUÁRIO LIBERADO! Pagamento confirmado.');
-                        usuarioLiberado = true;
-                        
-                        const el = document.getElementById('resultadoLogin');
-                        if (el) {
-                            el.className = 'resultado sucesso';
-                            el.innerHTML = `
-                                ✅ <strong>Pagamento confirmado!</strong><br>
-                                Você já pode acessar o sistema.
-                                <br><br>
-                                <button onclick="tentarLoginNovamente()" class="btn btn-primary" style="padding:8px 24px;font-size:14px;border:none;border-radius:8px;background:#667eea;color:white;cursor:pointer;">
-                                    🔓 Acessar agora
-                                </button>
-                            `;
-                            el.style.display = 'block';
-                        }
-                        
-                        if (supabaseSubscription) {
-                            supabaseSubscription.unsubscribe();
-                            supabaseSubscription = null;
-                        }
-                    }
-                }
-            )
-            .subscribe();
+        const response = await fetch(`${API_URL}/check-pagamento?email=${encodeURIComponent(email)}`);
+        const result = await response.json();
+        return result.pago || false;
     } catch (error) {
-        console.error('❌ Erro ao escutar Realtime:', error);
+        console.error('Erro ao verificar pagamento:', error);
+        return false;
     }
 }
 
 // ============================================
-// PARAR DE ESCUTAR
+// ✅ ESCUTAR PAGAMENTO (POLLING SEGURO)
 // ============================================
-function pararEscutar() {
-    if (supabaseSubscription) {
-        try {
-            supabaseSubscription.unsubscribe();
-        } catch (error) {}
-        supabaseSubscription = null;
-        console.log('🛑 Escuta encerrada');
+function escutarPagamento(email) {
+    if (intervalCheck) {
+        clearInterval(intervalCheck);
+        intervalCheck = null;
     }
+
+    console.log('🔄 Verificando pagamento para:', email);
+    
+    let tentativas = 0;
+    const maxTentativas = 60; // 60 * 5s = 5 minutos
+    
+    intervalCheck = setInterval(async () => {
+        tentativas++;
+        
+        const pago = await verificarPagamento(email);
+        
+        if (pago) {
+            console.log('✅ Pagamento confirmado!');
+            usuarioLiberado = true;
+            clearInterval(intervalCheck);
+            intervalCheck = null;
+            
+            const el = document.getElementById('resultadoLogin');
+            if (el) {
+                el.className = 'resultado sucesso';
+                el.innerHTML = `
+                    ✅ <strong>Pagamento confirmado!</strong><br>
+                    Você já pode acessar o sistema.
+                    <br><br>
+                    <button onclick="tentarLoginNovamente()" class="btn btn-primary" style="padding:8px 24px;font-size:14px;border:none;border-radius:8px;background:#667eea;color:white;cursor:pointer;">
+                        🔓 Acessar agora
+                    </button>
+                `;
+                el.style.display = 'block';
+            }
+        }
+        
+        if (tentativas >= maxTentativas) {
+            clearInterval(intervalCheck);
+            intervalCheck = null;
+            console.log('⏰ Tempo esgotado para verificação');
+            
+            const el = document.getElementById('resultadoLogin');
+            if (el && !usuarioLiberado) {
+                el.innerHTML = `
+                    <strong>⏰ Tempo esgotado</strong><br>
+                    O pagamento ainda não foi confirmado.
+                    <br><br>
+                    <a href="comprar.html" style="display:inline-block;padding:10px 24px;background:#28a745;color:white;border:none;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;transition:0.3s ease;">
+                        🔗 Pagar agora
+                    </a>
+                    <br><br>
+                    <button onclick="verificarPagamentoManual('${email}')" style="padding:8px 20px;background:transparent;color:#667eea;border:1.5px solid #667eea;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer;transition:0.3s ease;">
+                        🔄 Verificar novamente
+                    </button>
+                `;
+            }
+        }
+    }, 5000); // Verificar a cada 5 segundos
 }
 
 // ============================================
@@ -165,9 +150,8 @@ window.tentarLoginNovamente = tentarLoginNovamente;
 // ============================================
 async function verificarPagamentoManual(email) {
     try {
-        const response = await fetch(`${API_URL}/check-pagamento?email=${email}`);
-        const result = await response.json();
-        if (result.pago) {
+        const pago = await verificarPagamento(email);
+        if (pago) {
             alert('✅ Pagamento confirmado! Faça login novamente.');
             window.location.reload();
         } else {
@@ -242,13 +226,17 @@ if (formLogin) {
             if (response.ok) {
                 tokenAtual = result.dados.token;
                 localStorage.setItem('token', tokenAtual);
-                pararEscutar();
+
+                if (intervalCheck) {
+                    clearInterval(intervalCheck);
+                    intervalCheck = null;
+                }
 
                 mostrarResultado('resultadoLogin', true, 'Login realizado!');
                 setTimeout(() => window.location.href = 'perfil.html', 1000);
                 
             } else {
-                // 🔴 PAGAMENTO PENDENTE - INICIAR REALTIME
+                // 🔴 PAGAMENTO PENDENTE - INICIAR POLLING
                 if (response.status === 402 && result.codigo === 'PAGAMENTO_PENDENTE') {
                     const el = document.getElementById('resultadoLogin');
                     el.className = 'resultado erro-pagamento';
@@ -258,7 +246,7 @@ if (formLogin) {
                         <br><br>
                         <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
                             <div style="width:20px;height:20px;border:3px solid #667eea;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-                            <span style="font-size:13px;color:#888;">Aguardando confirmação...</span>
+                            <span style="font-size:13px;color:#888;" id="statusPagamento">Aguardando confirmação...</span>
                         </div>
                         <br>
                         <a href="comprar.html" style="display:inline-block;padding:10px 24px;background:#28a745;color:white;border:none;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none;transition:0.3s ease;">
@@ -275,7 +263,7 @@ if (formLogin) {
                     `;
                     el.style.display = 'block';
                     
-                    // 🔴 INICIAR ESCUTA REALTIME
+                    // 🔴 INICIAR POLLING
                     escutarPagamento(email);
                     
                 } else {
@@ -352,6 +340,10 @@ if (logoutBtn) {
 
         localStorage.removeItem('token');
         tokenAtual = null;
+        if (intervalCheck) {
+            clearInterval(intervalCheck);
+            intervalCheck = null;
+        }
         window.location.href = 'login.html';
     });
 }
